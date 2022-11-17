@@ -1,75 +1,84 @@
-import React, { Component, Fragment } from 'react';
-import { nanoid } from 'nanoid'
+import { Fragment, useState, useEffect } from 'react';
+import { nanoid } from 'nanoid';
 
-import Form from './Form/Form'
-import Filtre from './Filtre/Filtre'
-import ContactList from './ContactList/ContactList'
-export class App extends Component {
-  state = {
-    contacts: [],
-    filtre: '',
-  }
+import Form from './Form/Form';
+import Filtre from './Filtre/Filtre';
+import ContactList from './ContactList/ContactList';
 
-  componentDidMount() {
-    if (localStorage.getItem('contacts')){
-    this.setState({contacts: JSON.parse(localStorage.getItem('contacts'))})}
-  }
+export function App() {
+  const [contacts, setContacts] = useState([]);
+  const [filtre, setFiltre] = useState('');
 
-  componentDidUpdate(_, prevState) {
-    const {contacts} = this.state
-    if (prevState.contacts !== contacts){
-      localStorage.setItem('contacts', JSON.stringify(contacts))
+  useEffect(() => {
+    if (localStorage.getItem('contacts')) {
+      setContacts(JSON.parse(localStorage.getItem('contacts')));
     }
-  }
+  }, []);
 
-  filtreChange = (event) => {
-            const { name, value } = event.currentTarget
-    this.setState({ [name]: value })
-    }
+  useEffect(() => {
+    localStorage.setItem('contacts', JSON.stringify(contacts));
+  }, [contacts]);
 
-  checkIfContactExist = (name, number) => {
-    const { contacts } = this.state
+  const checkIfContactExist = (name, number) => {
     // перевіряємо чи є в стейті контакт з введеним ім'ям
-    if (!contacts.find(contact => contact.name.toLowerCase() === name.toLowerCase())) {
+    if (
+      !contacts.find(
+        contact => contact.name.toLowerCase() === name.toLowerCase()
+      )
+    ) {
       // якщо нема - перевіряємо чи є взагалі в локал сторідж якісь контакти
       if (localStorage.getItem('contacts')) {
         // якщо в локал сторідж є контакти - додаємо новий
-        const localStorageContacts = JSON.parse(localStorage.getItem('contacts'))
-        localStorageContacts.push({ id: nanoid(), name: name, number: number })
-        localStorage.setItem('contacts', JSON.stringify(localStorageContacts))
-      }
-      else {
+        const localStorageContacts = JSON.parse(
+          localStorage.getItem('contacts')
+        );
+        localStorageContacts.push({
+          id: nanoid(),
+          name: name,
+          number: number,
+        });
+        localStorage.setItem('contacts', JSON.stringify(localStorageContacts));
+      } else {
         // якщо локал сторідж порожній - створюємо в локал сторідж перший контакт
-        localStorage.setItem('contacts', JSON.stringify([{ id: nanoid(), name: name, number: number }]))
+        localStorage.setItem(
+          'contacts',
+          JSON.stringify([{ id: nanoid(), name: name, number: number }])
+        );
       }
       // незалежно від того, було щось у локал сторіджі чи ні, оновлюємо стейт
-      this.setState({ contacts: JSON.parse(localStorage.contacts) })
+      setContacts(JSON.parse(localStorage.contacts));
     }
-    // якщо в стейті є контакт із введеним ім'ям - видаємо алєрт 
-    else {alert(`${name} is already in contacts.`)}
-  }
+    // якщо в стейті є контакт із введеним ім'ям - видаємо алєрт
+    else {
+      alert(`${name} is already in contacts.`);
+    }
+  };
 
-  createFilteredList = () => {
-    const {contacts, filtre} = this.state
-    return contacts.filter(contact => contact.name.toLowerCase().includes(`${filtre.toLowerCase()}`))    
-  }
+  const filtreChange = event => {
+    setFiltre(event.currentTarget.value);
+  };
 
-  deleteContact = (contact) => {
-    const {contacts} = this.state 
-    this.setState({ contacts: contacts.filter(currentContact => currentContact !== contact) })
-  }
+  const createFilteredList = () => {
+    return contacts.filter(contact =>
+      contact.name.toLowerCase().includes(`${filtre.toLowerCase()}`)
+    );
+  };
 
-  render() {
-    return (
-      <Fragment>
-        <div>
-          <h2>Phonebook</h2>
-          <Form checkIfContactExist={this.checkIfContactExist} />
-          <h2>Contacts</h2>
-          <Filtre filtreChange={this.filtreChange} value={this.state.filtre} />
-          <ContactList createFilteredList={this.createFilteredList} deleteContact={this.deleteContact} />
+  const deleteContact = contact => {
+    setContacts(contacts.filter(currentContact => currentContact !== contact));
+  };
+  return (
+    <Fragment>
+      <div>
+        <h2>Phonebook</h2>
+        <Form checkIfContactExist={checkIfContactExist} />
+        <h2>Contacts</h2>
+        <Filtre filtreChange={filtreChange} value={filtre} />
+        <ContactList
+          createFilteredList={createFilteredList}
+          deleteContact={deleteContact}
+        />
       </div>
-      </Fragment>
+    </Fragment>
   );
 }
-};
