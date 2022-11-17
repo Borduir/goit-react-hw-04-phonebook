@@ -1,0 +1,11 @@
+.input {
+  margin-top: 10px;
+  margin-left: 10px;
+}
+
+.label {
+  color: orangered;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

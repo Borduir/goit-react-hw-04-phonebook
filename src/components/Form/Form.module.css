@@ -1,0 +1,22 @@
+.form {
+  color: orangered;
+  border: 1px solid;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.button {
+  color: orange;
+  background-color: gray;
+  border-radius: 4px;
+  border: 1px solid;
+
+  margin: 10px 0;
+}
+
+.input {
+  margin-top: 10px;
+  margin-left: 10px;
+}
